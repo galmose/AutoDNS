@@ -194,7 +194,7 @@ After running the script, perform the following tests to ensure the DNS server i
    Ensure that the Bind9 service is running correctly.
 
    ```sh
-   sudo /etc/init.d/named restart
+   sudo /etc/init.d/named status
    sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
    sudo named-checkconf
    ```
