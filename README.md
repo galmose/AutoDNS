@@ -3,7 +3,7 @@
 
 ## Overview
 
-The `AutoDNS.py` script automates the configuration of a DNS server using Bind9 on an Ubuntu system. It creates the necessary zone files for forward and reverse DNS lookups, updates the Bind9 configuration, and restarts the Bind9 service to apply the changes.
+The `English_version.py` or  `French_version.py` script automates the configuration of a DNS server using Bind9 on an Ubuntu system. It creates the necessary zone files for forward and reverse DNS lookups, updates the Bind9 configuration, and restarts the Bind9 service to apply the changes.
 In this configuration example we will use as IP address `192.168.183.17` and as domain name `integris.ptt`
 
 ## Dependencies
@@ -29,6 +29,13 @@ Before running the script, ensure that the following dependencies are installed 
    ```sh
    pip install dnspython
    ```
+3. **Execution of the script English_version.py**
+  ```sh
+   sudo chmod +x English_version.py
+   python3 English_version.py
+   ```
+The  `English_version.py` script is in your current directory. You have `Python 3` installed on your system. 
+You have the necessary permissions to execute the script `(you may need to use  sudo)`. 
 
 ## Script Breakdown
 
