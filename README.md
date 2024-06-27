@@ -16,7 +16,7 @@ Before running the script, ensure that the following dependencies are installed 
 - **shutil module**: This is included in the Python Standard Library and is used for file operations like copying files.
 - **os module**: This is also included in the Python Standard Library and is used for interacting with the operating system.
 
-### Installing Dependencies
+### Installing Dependencies and Execution
 
 1. **Install Bind9**
 
