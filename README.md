@@ -198,6 +198,22 @@ After running the script, perform the following tests to ensure the DNS server i
    sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
    sudo named-checkconf
    ```
+6. **DNS Server correctly installed**
+
+```bash
+root@Ubuntu:/etc/bind# ping integris.ptt
+PING integris.ptt (192.168.183.17) 56(84) bytes of data.
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=1 ttl=64 time=0.086 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=2 ttl=64 time=0.034 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=3 ttl=64 time=0.168 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=4 ttl=64 time=0.177 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=5 ttl=64 time=0.084 ms
+^C
+--- integris.ptt ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4056ms
+rtt min/avg/max/mdev = 0.034/0.109/0.177/0.054 ms
+root@Ubuntu:/etc/bind#
+  ```
 
 ## Conclusion
 
