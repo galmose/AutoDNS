@@ -218,3 +218,5 @@ root@Ubuntu:/etc/bind#
 ## Conclusion
 
 This script automates the configuration of a DNS server by creating and updating the necessary zone files and configurations, then restarting the Bind9 service. By following the above steps and performing the DNS tests, you can ensure that your DNS server is set up and functioning as expected.
+
+## Good use !!!
