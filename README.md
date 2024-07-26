@@ -140,7 +140,7 @@ This function restarts the Bind9 service to apply the new configuration.
 
 ```python
 def restart_bind9():
-    os.system('sudo /etc/init.d/named restart')
+    os.system('sudo systemctl restart bind9')
 ```
 
 ### Main Function
