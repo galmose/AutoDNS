@@ -53,7 +53,7 @@ def create_zone_files():
         named_conf_local.write(named_conf_local_content)
 # Function to restart the Bind9 service
 def restart_bind9():
-    os.system('sudo /etc/init.d/named restart')
+    os.system('sudo systemctl restart bind9')
 # Main function to backup existing files, create new files, and restart Bind9
 def main():
     # Backup original files if they exist
