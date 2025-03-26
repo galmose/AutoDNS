@@ -11,7 +11,7 @@
 
 ## Description du Projet
 
-AutoDNS est un outil qui automatise la configuration d'un serveur DNS basé sur Bind9 sous Ubuntu. Il génère automatiquement les fichiers de zone nécessaires pour les résolutions DNS directes et inverses, met à jour la configuration de Bind9, et redémarre le service pour appliquer les changements.
+AutoDNS est un outil qui automatise la configuration d'un serveur DNS basé sur Bind9 sous Ubuntu ou Debian. Il génère automatiquement les fichiers de zone nécessaires pour les résolutions DNS directes et inverses, met à jour la configuration de Bind9, et redémarre le service pour appliquer les changements.
 
 Ce dépôt contient deux versions du script (`English_version.py` et `French_version.py`), qui offrent les mêmes fonctionnalités mais avec des interfaces utilisateur dans des langues différentes.
 
@@ -19,7 +19,7 @@ Ce dépôt contient deux versions du script (`English_version.py` et `French_ver
 
 Avant d'utiliser ce script, assurez-vous d'avoir installé les dépendances suivantes:
 
-- **Ubuntu** (recommandé: 18.04 LTS ou plus récent)
+- **Ubuntu ou Debian** (recommandé: 18.04 o ou plus récent / 12 LTS pour Debian ) 
 - **Python 3.x**
 - **Bind9**
 - **dnspython**
