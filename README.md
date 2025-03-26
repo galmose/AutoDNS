@@ -224,7 +224,21 @@ Résultat attendu: Le nom de domaine associé à l'adresse IP est correctement r
 ping integris.ptt
 # Remplacez par votre domaine
 ```
+Resultat du test de
 
+```bash
+root@Ubuntu:/etc/bind# ping integris.ptt
+PING integris.ptt (192.168.183.17) 56(84) bytes of data.
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=1 ttl=64 time=0.086 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=2 ttl=64 time=0.034 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=3 ttl=64 time=0.168 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=4 ttl=64 time=0.177 ms
+64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=5 ttl=64 time=0.084 ms
+^C
+--- integris.ptt ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4056ms
+rtt min/avg/max/mdev = 0.034/0.109/0.177/0.054 ms
+root@Ubuntu:/etc/bind#
 Résultat attendu: Le ping fonctionne et l'hôte répond, avec le nom de domaine correctement résolu dans la réponse.
 
 ### 4. Vérifier l'État du Serveur DNS
