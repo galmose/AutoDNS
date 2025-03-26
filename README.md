@@ -59,88 +59,93 @@ Avant d'exécuter le script, vous devrez l'adapter à votre environnement spéci
 Dans les scripts, recherchez et modifiez les valeurs suivantes:
 
 ```python
-# Remplacez par votre adresse IP
+# Dans la version anglaise (English_version.py)
 IP_ADDRESS = "192.168.183.17"
-
-# Remplacez par votre nom de domaine
 DOMAIN_NAME = "integris.ptt"
+
+# Dans la version française (French_version.py)
+ADRESSE_IP = "192.168.183.17"
+NOM_DOMAINE = "integris.ptt"
 ```
 
-### 2. Chemins des Fichiers de Zone
+### 2. Options de Configuration Supplémentaires
 
-Si nécessaire, vous pouvez également modifier les chemins des fichiers de zone:
+Les scripts offrent des options supplémentaires pour personnaliser leur comportement :
 
 ```python
-# Chemin du fichier de zone directe
-zone_file_path = f'/etc/bind/db.{DOMAIN_NAME}'
+# Dans la version anglaise (English_version.py)
+BACKUP_FILES = True       # Créer des sauvegardes des fichiers existants
+RESTART_SERVICE = True    # Redémarrer le service Bind9 après configuration
+ADD_SAMPLE_RECORDS = True # Ajouter des exemples d'enregistrements DNS
 
-# Chemin du fichier de zone inverse
-# Extrait les 3 premiers octets de l'adresse IP
+# Dans la version française (French_version.py)
+CREER_SAUVEGARDES = True    # Créer des sauvegardes des fichiers existants
+REDEMARRER_SERVICE = True   # Redémarrer le service Bind9 après configuration
+AJOUTER_EXEMPLES = True     # Ajouter des exemples d'enregistrements DNS
+```
+
+### 3. Chemins des Fichiers de Zone
+
+Les chemins des fichiers sont générés automatiquement en fonction du nom de domaine et de l'adresse IP :
+
+```python
+# La fonction crée automatiquement les chemins suivants
+zone_file_path = f'/etc/bind/db.{DOMAIN_NAME}'
 ip_prefix = '.'.join(IP_ADDRESS.split('.')[:3])
 reverse_zone_file_path = f'/etc/bind/db.{ip_prefix}'
-
-# Chemin du fichier de configuration local de Bind9
 named_conf_local_path = '/etc/bind/named.conf.local'
 ```
 
-### 3. Configuration des Enregistrements DNS
+### 4. Configuration des Enregistrements DNS
 
-Vous pouvez ajouter, modifier ou supprimer des enregistrements DNS dans les sections suivantes:
+Si l'option `ADD_SAMPLE_RECORDS` (ou `AJOUTER_EXEMPLES` dans la version française) est activée, le script ajoute automatiquement plusieurs enregistrements DNS d'exemple. Vous pouvez personnaliser cette fonction pour ajouter vos propres enregistrements :
 
 ```python
-zone_file_content = f"""
-$TTL    604800
-@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      ns.{DOMAIN_NAME}.
-ns      IN      A       {IP_ADDRESS}
-www     IN      A       {IP_ADDRESS}  
-@       IN      A       {IP_ADDRESS}
-
-# Ajoutez vos enregistrements personnalisés ici
-# Exemple:
-# mail    IN      A       {IP_ADDRESS}
-# ftp     IN      A       {IP_ADDRESS}
+# Dans la fonction generate_forward_zone_content() / generer_contenu_zone_directe()
+# Vous pouvez modifier cette section pour ajouter vos propres enregistrements
+if ADD_SAMPLE_RECORDS:  # ou AJOUTER_EXEMPLES dans la version française
+    content += f"""www     IN      A       {IP_ADDRESS}
+mail    IN      A       {IP_ADDRESS}
+webmail IN      CNAME   mail.{DOMAIN_NAME}.
+"""
+    
+# Pour ajouter d'autres enregistrements personnalisés, modifiez cette section
+# Exemples :
+# content += f"""ftp     IN      A       {IP_ADDRESS}
 # serveur1 IN     A       192.168.183.18
-"""
+# serveur2 IN     A       192.168.183.19
+# """
 ```
 
-### 4. Configuration de la Zone Inverse
+### 5. Configuration de la Zone Inverse
 
-De même, vous pouvez personnaliser la zone inverse:
+De même, vous pouvez personnaliser les enregistrements PTR dans la fonction qui génère la zone inverse :
 
 ```python
-reverse_zone_file_content = f"""
-$TTL    604800
-@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      ns.{DOMAIN_NAME}.
-{IP_ADDRESS.split('.')[-1]}.{reverse_prefix}.in-addr.arpa.  IN PTR www.{DOMAIN_NAME}.
+# Dans la fonction generate_reverse_zone_content() / generer_contenu_zone_inverse()
+# Le script génère automatiquement les enregistrements PTR pour les enregistrements standard
+if ADD_SAMPLE_RECORDS:  # ou AJOUTER_EXEMPLES dans la version française
+    content += f"{ptr_name}  IN      PTR     ns.{DOMAIN_NAME}.\n"
+    content += f"{ptr_name}  IN      PTR     www.{DOMAIN_NAME}.\n"
+    content += f"{ptr_name}  IN      PTR     mail.{DOMAIN_NAME}.\n"
 
-# Ajoutez vos enregistrements PTR personnalisés ici
+# Pour ajouter des enregistrements PTR personnalisés pour d'autres serveurs
 # Exemple pour serveur1 avec IP 192.168.183.18:
-# 18.{reverse_prefix}.in-addr.arpa.  IN PTR serveur1.{DOMAIN_NAME}.
-"""
+# content += f"18.183.168.192.in-addr.arpa.  IN PTR serveur1.{DOMAIN_NAME}.\n"
 ```
+
+Les scripts génèrent automatiquement la structure correcte pour les enregistrements PTR, ce qui évite les erreurs courantes de syntaxe.
 
 ## Exécution du Script
+
+Les scripts améliorés vérifient automatiquement s'ils sont exécutés avec les privilèges administrateur nécessaires, et affichent un message d'erreur approprié le cas échéant.
 
 1. **Rendez le script exécutable**:
 
 ```bash
-sudo chmod +x English_version.py
+chmod +x English_version.py
 # ou
-sudo chmod +x French_version.py
+chmod +x French_version.py
 ```
 
 2. **Exécutez le script avec privilèges administrateur**:
@@ -150,6 +155,16 @@ sudo python3 English_version.py
 # ou
 sudo python3 French_version.py
 ```
+
+3. **Suivez les instructions à l'écran**:
+
+Le script vous guidera à travers les étapes suivantes:
+- Vérification des paramètres
+- Création des sauvegardes (si activé)
+- Création des fichiers de zone
+- Vérification de la configuration
+- Redémarrage du service Bind9 (si activé)
+- Affichage des instructions de test détaillées
 
 ## Configuration du Client DNS
 
@@ -181,7 +196,9 @@ sudo resolvconf -u
 
 ## Vérification de la Configuration
 
-Après l'exécution du script, effectuez les tests suivants pour vérifier que votre serveur DNS fonctionne correctement:
+Après l'exécution du script, des instructions de test détaillées sont automatiquement affichées. Le script effectue également des vérifications de base avec les commandes `named-checkzone` et `named-checkconf` pour s'assurer que la configuration est syntaxiquement correcte.
+
+Pour vérifier manuellement que votre serveur DNS fonctionne correctement, suivez les tests ci-dessous:
 
 ### 1. Vérifier la Résolution DNS Directe
 
@@ -190,7 +207,7 @@ dig @192.168.183.17 integris.ptt
 # Remplacez par votre IP et votre domaine
 ```
 
-Résultat attendu: L'adresse IP associée au domaine est correctement renvoyée.
+Résultat attendu: L'adresse IP associée au domaine est correctement renvoyée dans la section "ANSWER SECTION".
 
 ### 2. Vérifier la Résolution DNS Inverse
 
@@ -199,7 +216,7 @@ dig @192.168.183.17 -x 192.168.183.17
 # Remplacez par votre IP
 ```
 
-Résultat attendu: Le nom de domaine associé à l'adresse IP est correctement renvoyé.
+Résultat attendu: Le nom de domaine associé à l'adresse IP est correctement renvoyé dans un enregistrement PTR.
 
 ### 3. Tester la Connectivité avec Ping
 
@@ -208,80 +225,17 @@ ping integris.ptt
 # Remplacez par votre domaine
 ```
 
-Résultat attendu: Le ping fonctionne et l'hôte répond.
+Résultat attendu: Le ping fonctionne et l'hôte répond, avec le nom de domaine correctement résolu dans la réponse.
 
 ### 4. Vérifier l'État du Serveur DNS
 
 ```bash
 sudo systemctl status bind9
-sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
-sudo named-checkconf
 ```
 
-## Exemples de Configurations Personnalisées
+Résultat attendu: Le service est actif (running).
 
-### Exemple 1: Configuration avec Plusieurs Sous-domaines
-
-Modifiez le contenu du fichier de zone directe:
-
-```python
-zone_file_content = f"""
-$TTL    604800
-@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      ns.{DOMAIN_NAME}.
-ns      IN      A       {IP_ADDRESS}
-www     IN      A       {IP_ADDRESS}  
-@       IN      A       {IP_ADDRESS}
-mail    IN      A       {IP_ADDRESS}
-webmail IN      A       {IP_ADDRESS}
-cloud   IN      A       {IP_ADDRESS}
-svn     IN      A       {IP_ADDRESS}
-git     IN      A       {IP_ADDRESS}
-"""
-```
-
-### Exemple 2: Configuration avec Plusieurs Serveurs
-
-```python
-zone_file_content = f"""
-$TTL    604800
-@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      ns.{DOMAIN_NAME}.
-ns      IN      A       {IP_ADDRESS}
-www     IN      A       {IP_ADDRESS}  
-@       IN      A       {IP_ADDRESS}
-serveur1 IN     A       192.168.183.18
-serveur2 IN     A       192.168.183.19
-"""
-
-# N'oubliez pas d'ajouter les enregistrements PTR correspondants dans la zone inverse
-```
-
-### Exemple 3: Configuration avec CNAME
-
-```python
-zone_file_content = f"""
-$TTL    604800
-@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      ns.{DOMAIN_NAME}.
+DOMAIN_NAME}.
 ns      IN      A       {IP_ADDRESS}
 www     IN      A       {IP_ADDRESS}  
 @       IN      A       {IP_ADDRESS}
@@ -292,47 +246,75 @@ docs    IN      CNAME   www.{DOMAIN_NAME}.
 
 ## Dépannage
 
+Les scripts incluent désormais des vérifications automatiques de la configuration pour détecter les problèmes courants. Voici comment résoudre les problèmes les plus fréquents :
+
 ### Problème 1: Bind9 ne démarre pas
 
-```bash
-sudo systemctl status bind9
-```
+**Symptôme**: Le message d'erreur "Failed to restart Bind9 service" s'affiche.
 
-Vérifiez les journaux pour plus d'informations:
+**Solution**:
+1. Vérifiez l'état du service:
+   ```bash
+   sudo systemctl status bind9
+   ```
 
-```bash
-sudo journalctl -xe | grep named
-```
+2. Consultez les journaux pour identifier l'erreur:
+   ```bash
+   sudo journalctl -xe | grep named
+   ```
+
+3. Problèmes courants:
+   - Syntaxe incorrecte dans les fichiers de configuration
+   - Permissions de fichier incorrectes
+   - Nom de domaine ou IP déjà utilisés par un autre service
 
 ### Problème 2: Erreurs de syntaxe dans les fichiers de zone
 
-Utilisez les outils de vérification de Bind9:
+**Symptôme**: Les vérifications automatiques avec `named-checkzone` échouent.
 
-```bash
-sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
-sudo named-checkzone 183.168.192.in-addr.arpa /etc/bind/db.192.168.183
-```
+**Solution**:
+1. Vérifiez manuellement les fichiers de zone:
+   ```bash
+   sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
+   sudo named-checkzone 183.168.192.in-addr.arpa /etc/bind/db.192.168.183
+   ```
+
+2. Erreurs courantes:
+   - Oubli du point final après les noms de domaine
+   - Format incorrect des enregistrements PTR
+   - Numéro de série non incrémenté après modifications
 
 ### Problème 3: La résolution DNS ne fonctionne pas
 
-1. Vérifiez que Bind9 écoute sur la bonne interface:
+**Symptôme**: Les commandes `dig` ou `ping` ne fonctionnent pas comme prévu.
 
-```bash
-sudo netstat -tulpn | grep named
-```
+**Solution**:
+
+1. Vérifiez que Bind9 écoute sur la bonne interface:
+   ```bash
+   sudo netstat -tulpn | grep named
+   ```
 
 2. Vérifiez les paramètres du pare-feu:
+   ```bash
+   sudo ufw status
+   ```
 
-```bash
-sudo ufw status
-```
+3. Si nécessaire, autorisez le trafic DNS:
+   ```bash
+   sudo ufw allow 53/tcp
+   sudo ufw allow 53/udp
+   ```
 
-Si nécessaire, autorisez le trafic DNS:
-
-```bash
-sudo ufw allow 53/tcp
-sudo ufw allow 53/udp
-```
+4. Vérifiez le fichier `/etc/resolv.conf`:
+   ```bash
+   cat /etc/resolv.conf
+   ```
+   Assurez-vous qu'il contient:
+   ```
+   nameserver 192.168.183.17
+   search integris.ptt
+   ```
 
 ## Contribution au Projet
 
@@ -344,12 +326,68 @@ Les contributions à ce projet sont les bienvenues. Pour contribuer:
 
 ## Licence
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+Ce projet est sous licence MIT. 
+
+### Licence MIT
+
+```
+MIT License
+
+Copyright (c) 2025 AutoDNS Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+Cette licence permet :
+- L'utilisation commerciale
+- La modification
+- La distribution
+- L'utilisation privée
+
+Les utilisateurs doivent simplement inclure la notice de copyright et la permission ci-dessus dans toutes les copies ou parties substantielles du logiciel.
+
+## Fonctionnalités avancées
+
+Les scripts incluent plusieurs fonctionnalités avancées que vous pouvez explorer :
+
+### Validation des paramètres
+
+Les scripts vérifient automatiquement la validité de l'adresse IP et du nom de domaine avant de procéder à la configuration.
+
+### Génération automatique des fichiers
+
+Les chemins de fichiers et leur contenu sont générés dynamiquement en fonction de l'adresse IP et du nom de domaine fournis.
+
+### Sauvegarde automatique
+
+Les fichiers existants sont automatiquement sauvegardés avant d'être modifiés, ce qui permet de revenir facilement à une configuration antérieure.
+
+### Vérification intégrée
+
+Les scripts utilisent les outils `named-checkzone` et `named-checkconf` pour vérifier la validité de la configuration avant de redémarrer le service.
 
 ## Auteurs
 
-- [Votre Nom] - Développeur principal
+- [Tidiane SAVADOGO] - Développeur principal
 
 ## Remerciements
 
 - Merci à tous les contributeurs et testeurs
+- Équipe de documentation pour la création du README.md détaillé
+- Communauté Bind9 pour les excellentes ressources de documentation
