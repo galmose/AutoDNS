@@ -19,7 +19,7 @@ Ce dépôt contient deux versions du script (`English_version.py` et `French_ver
 
 Avant d'utiliser ce script, assurez-vous d'avoir installé les dépendances suivantes:
 
-- **Ubuntu ou Debian** (recommandé: 18.04 o ou plus récent / 12 LTS pour Debian ) 
+- **Ubuntu ou Debian** (recommandé: 18.04 pour ubuntu ou plus récent / 12 LTS pour Debian)  
 - **Python 3.x**
 - **Bind9**
 - **dnspython**
