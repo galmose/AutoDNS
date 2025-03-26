@@ -248,17 +248,6 @@ Résultat attendu: Le ping fonctionne et l'hôte répond, avec le nom de domaine
 sudo systemctl status bind9
 ```
 
-Résultat attendu: Le service est actif (running).
-
-DOMAIN_NAME}.
-ns      IN      A       {IP_ADDRESS}
-www     IN      A       {IP_ADDRESS}  
-@       IN      A       {IP_ADDRESS}
-webmail IN      CNAME   www.{DOMAIN_NAME}.
-docs    IN      CNAME   www.{DOMAIN_NAME}.
-"""
-```
-
 ## Dépannage
 
 Les scripts incluent désormais des vérifications automatiques de la configuration pour détecter les problèmes courants. Voici comment résoudre les problèmes les plus fréquents :
