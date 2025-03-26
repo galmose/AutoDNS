@@ -224,7 +224,7 @@ Résultat attendu: Le nom de domaine associé à l'adresse IP est correctement r
 ping integris.ptt
 # Remplacez par votre domaine
 ```
-Resultat du test de
+Resultat du test que nous avons efectués dans notre labo
 
 ```bash
 root@Ubuntu:/etc/bind# ping integris.ptt
