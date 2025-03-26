@@ -1,238 +1,355 @@
-  ```sh 
+# AutoDNS - Outil de Configuration Automatisée de Serveur DNS
+
+```
                      _             _____    _   _    _____ 
      /\             | |           |  __ \  | \ | |  / ____|
     /  \     _   _  | |_    ___   | |  | | |  \| | | (___  
    / /\ \   | | | | | __|  / _ \  | |  | | | . ` |  \___ \ 
   / ____ \  | |_| | | |_  | (_) | | |__| | | |\  |  ____) |
  /_/    \_\  \__,_|  \__|  \___/  |_____/  |_| \_| |_____/ 
-                                  
-   ```
-                                                                                                                                                                                                                            
-# AutoDNS Configuration Script
-
-## Overview
-
-The `English_version.py` or  `French_version.py` script automates the configuration of a DNS server using Bind9 on an Ubuntu system. It creates the necessary zone files for forward and reverse DNS lookups, updates the Bind9 configuration, and restarts the Bind9 service to apply the changes.
-In this configuration example we will use as IP address `192.168.183.17` and as domain name `integris.ptt`
-
-## Dependencies
-
-Before running the script, ensure that the following dependencies are installed on your system:
-
-- **Python 3.x**: The script is written in Python and requires Python 3.x to run.
-- **Bind9**: The DNS server software that will be configured.
-- **dnspython**: A DNS toolkit for Python to handle DNS queries and responses.
-- **shutil module**: This is included in the Python Standard Library and is used for file operations like copying files.
-- **os module**: This is also included in the Python Standard Library and is used for interacting with the operating system.
-
-### Installing Dependencies and Execution
-
-1. **Install Bind9**
-
-   ```sh
-   sudo apt update
-   sudo apt install bind9 bind9utils bind9-doc
-
-2. **Install dnspython**
-
-   ```sh
-   pip install dnspython
-   ```
-3. **Execution of the script English_version.py**
-  ```sh
-   sudo chmod +x English_version.py
-   python3 English_version.py
-   ```
-The  `English_version.py` script is in your current directory. You have `Python 3` installed on your system. 
-You have the necessary permissions to execute the script `(you may need to use  sudo)`. 
-
-## Script Breakdown
-
-### Importing Modules
-
-```python
-import os
-from shutil import copyfile
 ```
 
-### Defining File Paths
+## Description du Projet
 
-The script defines the paths to the forward and reverse zone files and the Bind9 local configuration file.
+AutoDNS est un outil qui automatise la configuration d'un serveur DNS basé sur Bind9 sous Ubuntu. Il génère automatiquement les fichiers de zone nécessaires pour les résolutions DNS directes et inverses, met à jour la configuration de Bind9, et redémarre le service pour appliquer les changements.
+
+Ce dépôt contient deux versions du script (`English_version.py` et `French_version.py`), qui offrent les mêmes fonctionnalités mais avec des interfaces utilisateur dans des langues différentes.
+
+## Prérequis
+
+Avant d'utiliser ce script, assurez-vous d'avoir installé les dépendances suivantes:
+
+- **Ubuntu** (recommandé: 18.04 LTS ou plus récent)
+- **Python 3.x**
+- **Bind9**
+- **dnspython**
+- **Privilèges administrateur** (sudo)
+
+## Installation des Dépendances
+
+1. **Mise à jour du système et installation de Bind9**:
+
+```bash
+sudo apt update
+sudo apt install -y bind9 bind9utils bind9-doc
+```
+
+2. **Installation de dnspython**:
+
+```bash
+pip install dnspython
+```
+
+## Structure du Projet
+
+```
+autodns/
+├── English_version.py      # Script en anglais
+├── French_version.py       # Script en français
+├── README.md               # Ce fichier
+└── exemples/               # Exemples de configurations
+```
+
+## Personnalisation du Script
+
+Avant d'exécuter le script, vous devrez l'adapter à votre environnement spécifique. Voici les principales variables à modifier:
+
+### 1. Adresse IP et Nom de Domaine
+
+Dans les scripts, recherchez et modifiez les valeurs suivantes:
 
 ```python
-zone_file_path = '/etc/bind/db.integris.ptt'
-reverse_zone_file_path = '/etc/bind/db.192.168.183'
+# Remplacez par votre adresse IP
+IP_ADDRESS = "192.168.183.17"
+
+# Remplacez par votre nom de domaine
+DOMAIN_NAME = "integris.ptt"
+```
+
+### 2. Chemins des Fichiers de Zone
+
+Si nécessaire, vous pouvez également modifier les chemins des fichiers de zone:
+
+```python
+# Chemin du fichier de zone directe
+zone_file_path = f'/etc/bind/db.{DOMAIN_NAME}'
+
+# Chemin du fichier de zone inverse
+# Extrait les 3 premiers octets de l'adresse IP
+ip_prefix = '.'.join(IP_ADDRESS.split('.')[:3])
+reverse_zone_file_path = f'/etc/bind/db.{ip_prefix}'
+
+# Chemin du fichier de configuration local de Bind9
 named_conf_local_path = '/etc/bind/named.conf.local'
 ```
 
-### Zone File Content
+### 3. Configuration des Enregistrements DNS
 
-The forward and reverse zone file contents are defined as multi-line strings. These strings specify the DNS records for the domain `integris.ptt` and its reverse lookup.
+Vous pouvez ajouter, modifier ou supprimer des enregistrements DNS dans les sections suivantes:
 
 ```python
 zone_file_content = f"""
 $TTL    604800
-@       IN      SOA     ns.integris.ptt. root.integris.ptt. (
+@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
                               2         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns.integris.ptt.
-ns      IN      A       192.168.183.17
-www     IN      A       192.168.183.17  
-@       IN      A       192.168.183.17
-"""
+@       IN      NS      ns.{DOMAIN_NAME}.
+ns      IN      A       {IP_ADDRESS}
+www     IN      A       {IP_ADDRESS}  
+@       IN      A       {IP_ADDRESS}
 
+# Ajoutez vos enregistrements personnalisés ici
+# Exemple:
+# mail    IN      A       {IP_ADDRESS}
+# ftp     IN      A       {IP_ADDRESS}
+# serveur1 IN     A       192.168.183.18
+"""
+```
+
+### 4. Configuration de la Zone Inverse
+
+De même, vous pouvez personnaliser la zone inverse:
+
+```python
 reverse_zone_file_content = f"""
 $TTL    604800
-@       IN      SOA     ns.integris.ptt. root.integris.ptt. (
+@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
                               2         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns.integris.ptt.
-17.183.168.192.in-addr.arpa.  IN      PTR     www.integris.ptt.
+@       IN      NS      ns.{DOMAIN_NAME}.
+{IP_ADDRESS.split('.')[-1]}.{reverse_prefix}.in-addr.arpa.  IN PTR www.{DOMAIN_NAME}.
+
+# Ajoutez vos enregistrements PTR personnalisés ici
+# Exemple pour serveur1 avec IP 192.168.183.18:
+# 18.{reverse_prefix}.in-addr.arpa.  IN PTR serveur1.{DOMAIN_NAME}.
 """
 ```
 
-### Updating Bind9 Configuration
+## Exécution du Script
 
-The script appends the new zone configurations to `named.conf.local`.
-
-```python
-named_conf_local_content = f"""
-zone "integris.ptt" {{
-    type master;
-    file "{zone_file_path}";
-}};
-
-zone "183.168.192.in-addr.arpa" {{
-    type master;
-    file "{reverse_zone_file_path}";
-}};
-"""
-```
-
-### Function to Create Zone Files
-
-This function writes the defined content to the respective zone files and updates `named.conf.local`.
-
-```python
-def create_zone_files():
-    # Write the forward zone file
-    with open(zone_file_path, 'w') as zone_file:
-        zone_file.write(zone_file_content)
-    # Write the reverse zone file
-    with open(reverse_zone_file_path, 'w') as reverse_zone_file:
-        reverse_zone_file.write(reverse_zone_file_content)
-    # Append the zone configurations to named.conf.local
-    with open(named_conf_local_path, 'a') as named_conf_local:
-        named_conf_local.write(named_conf_local_content)
-```
-
-### Function to Restart Bind9
-
-This function restarts the Bind9 service to apply the new configuration.
-
-```python
-def restart_bind9():
-    os.system('sudo systemctl restart bind9')
-```
-
-### Main Function
-
-The main function backs up the original files (if they exist), creates the new zone files, restarts Bind9, and prints a success message.
-
-```python
-def main():
-    # Backup original files if they exist
-    if os.path.exists(zone_file_path):
-        copyfile(zone_file_path, f"{zone_file_path}.bak")
-    if os.path.exists(reverse_zone_file_path):
-        copyfile(reverse_zone_file_path, f"{reverse_zone_file_path}.bak")
-    if os.path.exists(named_conf_local_path):
-        copyfile(named_conf_local_path, f"{named_conf_local_path}.bak")
-
-    # Create zone files and restart Bind9
-    create_zone_files()
-    restart_bind9()
-    print("DNS configuration applied successfully.")
-
-# Entry point of the script
-if __name__ == "__main__":
-    main()
-```
-
-## Update /etc/resolv.conf 
-
-To ensure your system uses the new DNS server for name resolution, you need to update the  `/etc/resolv.conf` file to point to the local DNS server.
-Edit  `/etc/resolv.conf` and add the following lines: 
-```sh
-nameserver 192.168.183.17
-search integris.ptt
-  ```
-
-
-## DNS Tests
-
-After running the script, perform the following tests to ensure the DNS server is functioning correctly:
-
-1. **Check Forward DNS Lookup**
-
-   Use the `dig` command to verify that the domain `integris.ptt` resolves to the correct IP address.
-
-   ```sh
-   dig @192.168.183.17 integris.ptt
-   ```
-
-2. **Check Reverse DNS Lookup**
-
-   Use the `dig` command to verify the reverse DNS lookup for the IP address `192.168.183.17`.
-
-   ```sh
-   dig @192.168.183.17 -x 192.168.183.17
-   ```
-
-3. **Ping the Domain**
-
-   Use the `ping` command to ensure that the domain `integris.ptt` is reachable.
-
-   ```sh
-   ping integris.ptt
-   ```
-
-4. **Check DNS Server Status**
-
-   Ensure that the Bind9 service is running correctly.
-
-   ```sh
-   sudo /etc/init.d/named status
-   sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
-   sudo named-checkconf
-   ```
-6. **DNS Server correctly installed**
+1. **Rendez le script exécutable**:
 
 ```bash
-root@Ubuntu:/etc/bind# ping integris.ptt
-PING integris.ptt (192.168.183.17) 56(84) bytes of data.
-64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=1 ttl=64 time=0.086 ms
-64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=2 ttl=64 time=0.034 ms
-64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=3 ttl=64 time=0.168 ms
-64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=4 ttl=64 time=0.177 ms
-64 bytes from www.integris.ptt (192.168.183.17): icmp_seq=5 ttl=64 time=0.084 ms
-^C
---- integris.ptt ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 4056ms
-rtt min/avg/max/mdev = 0.034/0.109/0.177/0.054 ms
-root@Ubuntu:/etc/bind#
-  ```
+sudo chmod +x English_version.py
+# ou
+sudo chmod +x French_version.py
+```
 
-## Conclusion
+2. **Exécutez le script avec privilèges administrateur**:
 
-This script automates the configuration of a DNS server by creating and updating the necessary zone files and configurations, then restarting the Bind9 service. By following the above steps and performing the DNS tests, you can ensure that your DNS server is set up and functioning as expected.
+```bash
+sudo python3 English_version.py
+# ou
+sudo python3 French_version.py
+```
 
-## Good use !!!
+## Configuration du Client DNS
+
+Pour que votre système utilise ce serveur DNS, vous devez mettre à jour le fichier `/etc/resolv.conf`:
+
+```bash
+sudo nano /etc/resolv.conf
+```
+
+Ajoutez les lignes suivantes (à adapter à votre configuration):
+
+```
+nameserver 192.168.183.17
+search integris.ptt
+```
+
+Pour rendre cette configuration permanente (elle peut être écrasée par le système), vous pouvez utiliser `resolvconf`:
+
+```bash
+sudo apt install resolvconf
+sudo nano /etc/resolvconf/resolv.conf.d/base
+```
+
+Ajoutez les mêmes lignes que précédemment et mettez à jour:
+
+```bash
+sudo resolvconf -u
+```
+
+## Vérification de la Configuration
+
+Après l'exécution du script, effectuez les tests suivants pour vérifier que votre serveur DNS fonctionne correctement:
+
+### 1. Vérifier la Résolution DNS Directe
+
+```bash
+dig @192.168.183.17 integris.ptt
+# Remplacez par votre IP et votre domaine
+```
+
+Résultat attendu: L'adresse IP associée au domaine est correctement renvoyée.
+
+### 2. Vérifier la Résolution DNS Inverse
+
+```bash
+dig @192.168.183.17 -x 192.168.183.17
+# Remplacez par votre IP
+```
+
+Résultat attendu: Le nom de domaine associé à l'adresse IP est correctement renvoyé.
+
+### 3. Tester la Connectivité avec Ping
+
+```bash
+ping integris.ptt
+# Remplacez par votre domaine
+```
+
+Résultat attendu: Le ping fonctionne et l'hôte répond.
+
+### 4. Vérifier l'État du Serveur DNS
+
+```bash
+sudo systemctl status bind9
+sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
+sudo named-checkconf
+```
+
+## Exemples de Configurations Personnalisées
+
+### Exemple 1: Configuration avec Plusieurs Sous-domaines
+
+Modifiez le contenu du fichier de zone directe:
+
+```python
+zone_file_content = f"""
+$TTL    604800
+@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      ns.{DOMAIN_NAME}.
+ns      IN      A       {IP_ADDRESS}
+www     IN      A       {IP_ADDRESS}  
+@       IN      A       {IP_ADDRESS}
+mail    IN      A       {IP_ADDRESS}
+webmail IN      A       {IP_ADDRESS}
+cloud   IN      A       {IP_ADDRESS}
+svn     IN      A       {IP_ADDRESS}
+git     IN      A       {IP_ADDRESS}
+"""
+```
+
+### Exemple 2: Configuration avec Plusieurs Serveurs
+
+```python
+zone_file_content = f"""
+$TTL    604800
+@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      ns.{DOMAIN_NAME}.
+ns      IN      A       {IP_ADDRESS}
+www     IN      A       {IP_ADDRESS}  
+@       IN      A       {IP_ADDRESS}
+serveur1 IN     A       192.168.183.18
+serveur2 IN     A       192.168.183.19
+"""
+
+# N'oubliez pas d'ajouter les enregistrements PTR correspondants dans la zone inverse
+```
+
+### Exemple 3: Configuration avec CNAME
+
+```python
+zone_file_content = f"""
+$TTL    604800
+@       IN      SOA     ns.{DOMAIN_NAME}. root.{DOMAIN_NAME}. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      ns.{DOMAIN_NAME}.
+ns      IN      A       {IP_ADDRESS}
+www     IN      A       {IP_ADDRESS}  
+@       IN      A       {IP_ADDRESS}
+webmail IN      CNAME   www.{DOMAIN_NAME}.
+docs    IN      CNAME   www.{DOMAIN_NAME}.
+"""
+```
+
+## Dépannage
+
+### Problème 1: Bind9 ne démarre pas
+
+```bash
+sudo systemctl status bind9
+```
+
+Vérifiez les journaux pour plus d'informations:
+
+```bash
+sudo journalctl -xe | grep named
+```
+
+### Problème 2: Erreurs de syntaxe dans les fichiers de zone
+
+Utilisez les outils de vérification de Bind9:
+
+```bash
+sudo named-checkzone integris.ptt /etc/bind/db.integris.ptt
+sudo named-checkzone 183.168.192.in-addr.arpa /etc/bind/db.192.168.183
+```
+
+### Problème 3: La résolution DNS ne fonctionne pas
+
+1. Vérifiez que Bind9 écoute sur la bonne interface:
+
+```bash
+sudo netstat -tulpn | grep named
+```
+
+2. Vérifiez les paramètres du pare-feu:
+
+```bash
+sudo ufw status
+```
+
+Si nécessaire, autorisez le trafic DNS:
+
+```bash
+sudo ufw allow 53/tcp
+sudo ufw allow 53/udp
+```
+
+## Contribution au Projet
+
+Les contributions à ce projet sont les bienvenues. Pour contribuer:
+
+1. Forkez ce dépôt
+2. Créez une branche pour votre fonctionnalité
+3. Soumettez une pull request
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+
+## Auteurs
+
+- [Votre Nom] - Développeur principal
+
+## Remerciements
+
+- Merci à tous les contributeurs et testeurs
