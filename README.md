@@ -47,7 +47,7 @@ autodns/
 ├── English_version.py      # Script en anglais
 ├── French_version.py       # Script en français
 ├── README.md               # Ce fichier
-└── exemples/               # Exemples de configurations
+
 ```
 
 ## Personnalisation du Script
@@ -239,6 +239,7 @@ PING integris.ptt (192.168.183.17) 56(84) bytes of data.
 5 packets transmitted, 5 received, 0% packet loss, time 4056ms
 rtt min/avg/max/mdev = 0.034/0.109/0.177/0.054 ms
 root@Ubuntu:/etc/bind#
+```
 Résultat attendu: Le ping fonctionne et l'hôte répond, avec le nom de domaine correctement résolu dans la réponse.
 
 ### 4. Vérifier l'État du Serveur DNS
